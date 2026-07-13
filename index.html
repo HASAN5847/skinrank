@@ -46,20 +46,10 @@
     </div>
 
     <script>
-        // Yeni fiyatlandırma mantığı[cite: 1]
-        const fiyatVeritabani = {
-            "Renegade Raider": "500$", "Aerial Assault Trooper": "450$", "Black Knight": "350$", 
-            "Galaxy": "250$", "Ikonik": "100$", "Wildcat": "70$", "Travis Scott": "65$",
-            "Skull Trooper": "55$", "Ghoul Trooper": "50$", "Midas": "40$", "Peely": "30$"
-        };
-
         const skinler = ["Renegade Raider", "Aerial Assault Trooper", "Black Knight", "Skull Trooper", "Ghoul Trooper", "Galaxy", "Ikonik", "Glow", "Honor Guard", "Wonder", "Dark Vertex", "Double Helix", "Royale Bomber", "Eon", "Wildcat", "Travis Scott", "Astro Jack", "Marshmello", "Ariana Grande", "LeBron James", "Naruto Uzumaki", "Sasuke Uchiha", "Kakashi Hatake", "Itachi Uchiha", "Goku", "Vegeta", "Beerus", "Gohan", "Piccolo", "Frieza", "Spider-Man", "Spider-Gwen", "Miles Morales", "Iron Man", "Captain America", "Thor", "Wolverine", "Deadpool", "Venom", "Carnage", "Black Panther", "Doctor Strange", "Scarlet Witch", "Loki", "Thanos", "Batman", "Catwoman", "Harley Quinn", "Superman", "Wonder Woman", "The Flash", "Green Arrow", "John Wick", "Kratos", "Master Chief", "Lara Croft", "Ezio Auditore", "Geralt of Rivia", "Ciri", "Doom Slayer", "Solid Snake", "Raiden", "Chun-Li", "Ryu", "Cammy", "Guile", "Jinx", "Vi", "Rick Sanchez", "Morty", "MrBeast", "Ninja", "Bugha", "SypherPK", "Nick Eh 30", "Loserfruit", "Lazarbeam", "The Reaper", "Drift", "Ragnarok", "Omega", "Carbide", "Lynx", "Midas", "Jules", "Meowscles", "Kit", "Peely", "Fishstick", "Aura", "Crystal", "Siren", "Focus", "Sparkplug", "Ruby", "Surf Witch", "Haze", "Raven", "Raven Team Leader", "Cuddle Team Leader", "Brite Bomber", "Dark Bomber", "Red Knight", "Frozen Red Knight", "Love Ranger", "Ravenpool", "Raven Team Syd", "Chaos Agent", "Dummy", "Bushranger", "Hybrid", "Dire", "Ice King", "Prisoner", "Luxe", "Fade", "Agent Jones", "Foundation", "The Origin", "The Imagined", "The Order", "Paradigm", "Doom Guy", "Hope", "Valeria", "Montague", "Oscar", "Nisha", "Peter Griffin"];
         
         const listeDiv = document.getElementById('skinListesi');
-        
-        skinler.forEach(s => {
-            listeDiv.innerHTML += `<div class="liste-item">${s}</div>`;
-        });
+        skinler.forEach(s => { listeDiv.innerHTML += `<div class="liste-item">${s}</div>`; });
 
         async function ara() {
             const ad = document.getElementById('skinAd').value;
@@ -69,11 +59,18 @@
                 const data = await res.json();
                 if (data.status === 200) {
                     const s = data.data;
-                    const fiyat = fiyatVeritabani[s.name] || "30$ - 70$ arası"; 
+                    const sezon = s.introduction ? s.introduction.season : 10;
+                    
+                    // Otomatik fiyat mantığı: Eski sezonlar pahalı, yeni sezonlar ucuz[cite: 1]
+                    let fiyat;
+                    if (sezon <= 2) fiyat = "450$ - 500$";
+                    else if (sezon <= 5) fiyat = "250$ - 350$";
+                    else fiyat = "30$ - 70$";
+
                     sonucDiv.innerHTML = `
                         <h3>${s.name}</h3>
                         <img src="${s.images.icon}">
-                        <p>Sezon: ${s.introduction ? s.introduction.season : "Bilinmiyor"}</p>
+                        <p>Sezon: ${sezon}</p>
                         <p style="color:#00ff00">Piyasa Değeri: ${fiyat}</p>
                     `;
                 } else {
