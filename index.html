@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>SkinRank Premium</title>
+    <style>
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #000; color: #ff0000; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        #red-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; display: flex; justify-content: center; align-items: center; font-size: 60px; font-weight: bold; z-index: 1000; animation: fadeOut 2s forwards; text-shadow: 0 0 20px #ff0000; }
+        @keyframes fadeOut { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+        
+        header { width: 100%; text-align: center; padding: 20px; }
+        h1 { font-size: 40px; text-shadow: 0 0 15px #ff0000; margin: 0; color: #ff0000; }
+        .disclaimer { color: #ffff00; font-size: 18px; margin: 10px 0; font-weight: bold; }
+        
+        .main-container { display: flex; gap: 40px; margin-top: 20px; }
+        .search-section { text-align: center; }
+        
+        input { padding: 15px; width: 300px; border-radius: 50px; border: 2px solid #ff0000; background: #111; color: white; text-align: center; }
+        button { padding: 15px 30px; background: #ff0000; color: white; border: none; cursor: pointer; border-radius: 50px; font-weight: bold; margin-left: 10px; }
+        
+        #sonuc { margin-top: 30px; padding: 20px; background: #111; border: 1px solid #333; border-radius: 20px; width: 300px; }
+        img { max-width: 250px; border-radius: 15px; border: 2px solid #ff0000; }
+        
+        .liste-section { width: 300px; background: #111; padding: 20px; border-radius: 15px; border: 1px solid #333; max-height: 500px; overflow-y: auto; }
+        .liste-item { color: #00ff00; margin-bottom: 8px; font-size: 14px; border-bottom: 1px solid #222; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div id="red-splash">SkinRank</div>
+    <header>
+        <h1>SKINRANK</h1>
+        <p class="disclaimer">Skin değeri dolarla değil anıyla hesaplanır</p>
+    </header>
+
+    <div class="main-container">
+        <div class="search-section">
+            <input type="text" id="skinAd" placeholder="Skin adını yaz...">
+            <button onclick="ara()">ARA</button>
+            <div id="sonuc">Skin ismini yaz ve ara...</div>
+        </div>
+
+        <div class="liste-section">
+            <h3 style="color:white">Sitemizdeki Skinler</h3>
+            <div id="skinListesi"></div>
+        </div>
+    </div>
+
+    <script>
+        // Yeni fiyatlandırma mantığı[cite: 1]
+        const fiyatVeritabani = {
+            "Renegade Raider": "500$", "Aerial Assault Trooper": "450$", "Black Knight": "350$", 
+            "Galaxy": "250$", "Ikonik": "100$", "Wildcat": "70$", "Travis Scott": "65$",
+            "Skull Trooper": "55$", "Ghoul Trooper": "50$", "Midas": "40$", "Peely": "30$"
+        };
+
+        const skinler = ["Renegade Raider", "Aerial Assault Trooper", "Black Knight", "Skull Trooper", "Ghoul Trooper", "Galaxy", "Ikonik", "Glow", "Honor Guard", "Wonder", "Dark Vertex", "Double Helix", "Royale Bomber", "Eon", "Wildcat", "Travis Scott", "Astro Jack", "Marshmello", "Ariana Grande", "LeBron James", "Naruto Uzumaki", "Sasuke Uchiha", "Kakashi Hatake", "Itachi Uchiha", "Goku", "Vegeta", "Beerus", "Gohan", "Piccolo", "Frieza", "Spider-Man", "Spider-Gwen", "Miles Morales", "Iron Man", "Captain America", "Thor", "Wolverine", "Deadpool", "Venom", "Carnage", "Black Panther", "Doctor Strange", "Scarlet Witch", "Loki", "Thanos", "Batman", "Catwoman", "Harley Quinn", "Superman", "Wonder Woman", "The Flash", "Green Arrow", "John Wick", "Kratos", "Master Chief", "Lara Croft", "Ezio Auditore", "Geralt of Rivia", "Ciri", "Doom Slayer", "Solid Snake", "Raiden", "Chun-Li", "Ryu", "Cammy", "Guile", "Jinx", "Vi", "Rick Sanchez", "Morty", "MrBeast", "Ninja", "Bugha", "SypherPK", "Nick Eh 30", "Loserfruit", "Lazarbeam", "The Reaper", "Drift", "Ragnarok", "Omega", "Carbide", "Lynx", "Midas", "Jules", "Meowscles", "Kit", "Peely", "Fishstick", "Aura", "Crystal", "Siren", "Focus", "Sparkplug", "Ruby", "Surf Witch", "Haze", "Raven", "Raven Team Leader", "Cuddle Team Leader", "Brite Bomber", "Dark Bomber", "Red Knight", "Frozen Red Knight", "Love Ranger", "Ravenpool", "Raven Team Syd", "Chaos Agent", "Dummy", "Bushranger", "Hybrid", "Dire", "Ice King", "Prisoner", "Luxe", "Fade", "Agent Jones", "Foundation", "The Origin", "The Imagined", "The Order", "Paradigm", "Doom Guy", "Hope", "Valeria", "Montague", "Oscar", "Nisha", "Peter Griffin"];
+        
+        const listeDiv = document.getElementById('skinListesi');
+        
+        skinler.forEach(s => {
+            listeDiv.innerHTML += `<div class="liste-item">${s}</div>`;
+        });
+
+        async function ara() {
+            const ad = document.getElementById('skinAd').value;
+            const sonucDiv = document.getElementById('sonuc');
+            try {
+                const res = await fetch(`https://fortnite-api.com/v2/cosmetics/br/search?name=${ad}&language=tr`);
+                const data = await res.json();
+                if (data.status === 200) {
+                    const s = data.data;
+                    const fiyat = fiyatVeritabani[s.name] || "30$ - 70$ arası"; 
+                    sonucDiv.innerHTML = `
+                        <h3>${s.name}</h3>
+                        <img src="${s.images.icon}">
+                        <p>Sezon: ${s.introduction ? s.introduction.season : "Bilinmiyor"}</p>
+                        <p style="color:#00ff00">Piyasa Değeri: ${fiyat}</p>
+                    `;
+                } else {
+                    sonucDiv.innerHTML = "Skin bulunamadı.";
+                }
+            } catch (e) { sonucDiv.innerHTML = "Hata oluştu."; }
+        }
+    </script>
+</body>
+</html>
+```[cite: 1]
