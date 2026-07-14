@@ -5,18 +5,19 @@
     <title>SkinRank Premium</title>
     <style>
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background-color: #000; color: #ff0000; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        #red-splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; display: flex; justify-content: center; align-items: center; font-size: 60px; font-weight: bold; z-index: 1000; animation: fadeOut 2s forwards; text-shadow: 0 0 20px #ff0000; }
-        @keyframes fadeOut { 0% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+        .tab-container { margin: 20px; }
+        button.tab { padding: 15px 40px; margin: 0 10px; cursor: pointer; border: 2px solid #ff0000; background: #111; color: white; border-radius: 50px; font-weight: bold; }
+        button.active { background: #ff0000; }
         
         header { width: 100%; text-align: center; padding: 20px; }
         h1 { font-size: 40px; text-shadow: 0 0 15px #ff0000; margin: 0; color: #ff0000; }
         .disclaimer { color: #ffff00; font-size: 18px; margin: 10px 0; font-weight: bold; }
         
-        .main-container { display: flex; gap: 40px; margin-top: 20px; }
+        .main-container { display: flex; gap: 40px; margin-top: 20px; width: 90%; justify-content: center; }
         .search-section { text-align: center; }
         
         input { padding: 15px; width: 300px; border-radius: 50px; border: 2px solid #ff0000; background: #111; color: white; text-align: center; }
-        button { padding: 15px 30px; background: #ff0000; color: white; border: none; cursor: pointer; border-radius: 50px; font-weight: bold; margin-left: 10px; }
+        button.ara-btn { padding: 15px 30px; background: #ff0000; color: white; border: none; cursor: pointer; border-radius: 50px; font-weight: bold; margin-left: 10px; box-shadow: 0 0 15px #ff0000; }
         
         #sonuc { margin-top: 30px; padding: 20px; background: #111; border: 1px solid #333; border-radius: 20px; width: 300px; }
         img { max-width: 250px; border-radius: 15px; border: 2px solid #ff0000; }
@@ -26,7 +27,12 @@
     </style>
 </head>
 <body>
-    <div id="red-splash">SkinRank</div>
+
+    <div class="tab-container">
+        <button class="tab active" onclick="oyunSec('fortnite')">FORTNITE</button>
+        <button class="tab" onclick="oyunSec('valorant')">VALORANT</button>
+    </div>
+
     <header>
         <h1>SKINRANK</h1>
         <p class="disclaimer">Skin değeri dolarla değil anıyla hesaplanır</p>
@@ -34,51 +40,82 @@
 
     <div class="main-container">
         <div class="search-section">
-            <input type="text" id="skinAd" placeholder="Skin adını yaz...">
-            <button onclick="ara()">ARA</button>
+            <input type="text" id="skinAd" placeholder="Skin adı yaz...">
+            <button class="ara-btn" onclick="ara()">ARA</button>
             <div id="sonuc">Skin ismini yaz ve ara...</div>
         </div>
-
         <div class="liste-section">
-            <h3 style="color:white">Sitemizdeki Skinler</h3>
-            <div id="skinListesi"></div>
+            <h3 style="color:white">Sitemizdeki Koleksiyonlar</h3>
+            <div id="liste"></div>
         </div>
     </div>
 
     <script>
-        const skinler = ["Renegade Raider", "Aerial Assault Trooper", "Black Knight", "Skull Trooper", "Ghoul Trooper", "Galaxy", "Ikonik", "Glow", "Honor Guard", "Wonder", "Dark Vertex", "Double Helix", "Royale Bomber", "Eon", "Wildcat", "Travis Scott", "Astro Jack", "Marshmello", "Ariana Grande", "LeBron James", "Naruto Uzumaki", "Sasuke Uchiha", "Kakashi Hatake", "Itachi Uchiha", "Goku", "Vegeta", "Beerus", "Gohan", "Piccolo", "Frieza", "Spider-Man", "Spider-Gwen", "Miles Morales", "Iron Man", "Captain America", "Thor", "Wolverine", "Deadpool", "Venom", "Carnage", "Black Panther", "Doctor Strange", "Scarlet Witch", "Loki", "Thanos", "Batman", "Catwoman", "Harley Quinn", "Superman", "Wonder Woman", "The Flash", "Green Arrow", "John Wick", "Kratos", "Master Chief", "Lara Croft", "Ezio Auditore", "Geralt of Rivia", "Ciri", "Doom Slayer", "Solid Snake", "Raiden", "Chun-Li", "Ryu", "Cammy", "Guile", "Jinx", "Vi", "Rick Sanchez", "Morty", "MrBeast", "Ninja", "Bugha", "SypherPK", "Nick Eh 30", "Loserfruit", "Lazarbeam", "The Reaper", "Drift", "Ragnarok", "Omega", "Carbide", "Lynx", "Midas", "Jules", "Meowscles", "Kit", "Peely", "Fishstick", "Aura", "Crystal", "Siren", "Focus", "Sparkplug", "Ruby", "Surf Witch", "Haze", "Raven", "Raven Team Leader", "Cuddle Team Leader", "Brite Bomber", "Dark Bomber", "Red Knight", "Frozen Red Knight", "Love Ranger", "Ravenpool", "Raven Team Syd", "Chaos Agent", "Dummy", "Bushranger", "Hybrid", "Dire", "Ice King", "Prisoner", "Luxe", "Fade", "Agent Jones", "Foundation", "The Origin", "The Imagined", "The Order", "Paradigm", "Doom Guy", "Hope", "Valeria", "Montague", "Oscar", "Nisha", "Peter Griffin"];
-        
-        const listeDiv = document.getElementById('skinListesi');
-        skinler.forEach(s => { listeDiv.innerHTML += `<div class="liste-item">${s}</div>`; });
+        let aktifOyun = 'fortnite';
+        const fSkinler = ["Renegade Raider", "Aerial Assault Trooper", "Black Knight", "Skull Trooper", "Ghoul Trooper", "Galaxy", "Ikonik", "Glow", "Honor Guard", "Wonder", "Dark Vertex", "Double Helix", "Royale Bomber", "Eon", "Wildcat", "Travis Scott", "Astro Jack", "Marshmello", "Ariana Grande", "LeBron James", "Naruto Uzumaki", "Sasuke Uchiha", "Kakashi Hatake", "Itachi Uchiha", "Goku", "Vegeta", "Beerus", "Gohan", "Piccolo", "Frieza", "Spider-Man", "Spider-Gwen", "Miles Morales", "Iron Man", "Captain America", "Thor", "Wolverine", "Deadpool", "Venom", "Carnage", "Black Panther", "Doctor Strange", "Scarlet Witch", "Loki", "Thanos", "Batman", "Catwoman", "Harley Quinn", "Superman", "Wonder Woman", "The Flash", "Green Arrow", "John Wick", "Kratos", "Master Chief", "Lara Croft", "Ezio Auditore", "Geralt of Rivia", "Ciri", "Doom Slayer", "Solid Snake", "Raiden", "Chun-Li", "Ryu", "Cammy", "Guile", "Jinx", "Vi", "Rick Sanchez", "Morty", "MrBeast", "Ninja", "Bugha", "SypherPK", "Nick Eh 30", "Loserfruit", "Lazarbeam", "The Reaper", "Drift", "Ragnarok", "Omega", "Carbide", "Lynx", "Midas", "Jules", "Meowscles", "Kit", "Peely", "Fishstick", "Aura", "Crystal", "Siren", "Focus", "Sparkplug", "Ruby", "Surf Witch", "Haze", "Raven", "Raven Team Leader", "Cuddle Team Leader", "Brite Bomber", "Dark Bomber", "Red Knight", "Frozen Red Knight", "Love Ranger", "Ravenpool", "Raven Team Syd", "Chaos Agent", "Dummy", "Bushranger", "Hybrid", "Dire", "Ice King", "Prisoner", "Luxe", "Fade", "Agent Jones", "Foundation", "The Origin", "The Imagined", "The Order", "Paradigm", "Doom Guy", "Hope", "Valeria", "Montague", "Oscar", "Nisha", "Peter Griffin"];
+        const vSetler = ["Prime", "Prime 2.0", "Reaver", "Reaver 2.0", "Oni", "Oni 2.0", "Elderflame", "Glitchpop", "Glitchpop 2.0", "Ion", "Ion 2.0", "RGX 11z Pro", "RGX 11z Pro 2.0", "Protocol 781-A", "Spectrum", "Sentinels of Light", "Ruination", "Champions 2021", "Champions 2022", "Champions 2023", "Champions 2024", "Prelude to Chaos", "Araxys", "Gaia's Vengeance", "Kuronami", "Xerøfang", "Evori Dreamwings", "Singularity", "Sovereign", "Forsaken", "Magepunk", "Magepunk 2.0", "ChronoVoid", "Cryostasis", "Neptune", "No Limits", "Radiant Crisis 001", "BlastX", "Recon", "Infantry", "Prism", "Prism II", "G.U.N.", "Horizon", "Luxe", "Smite", "Avalanche", "Sakura", "Tigris", "Endeavour", "Altitude", "Black.Market", "Team Ace", "Doodle Buds", "Celestial", "Crimsonbeast", "Valiant Hero", "Mystbloom", "Imperium", "Soulstrife", "Luna", "Holomoku", "Wonderstallion", "Minima", "Wasteland", "Kohaku & Matsuba", "Spline", "Ego", "Origin", "Xenohunter", "Undercity", "VALORANT GO! Vol. 1", "VALORANT GO! Vol. 2", "Snowfall", "Winterwunderland", "Titanmail", "Nunca Olvidados", "Silk", "Artisan", "Aperture", "EX.O", "Bolt", "Outlaw", "Apertur"];
+
+        // Valorant lüks ve eski/özel setlerin fiyat listesi
+        const vLuksFiyatlar = {
+            "Champions 2021": "500$", "Champions 2022": "450$", "Champions 2023": "350$", "Champions 2024": "300$",
+            "Elderflame": "250$", "Kuronami": "250$", "Spectrum": "100$", "Evori Dreamwings": "100$",
+            "Glitchpop": "70$", "RGX 11z Pro": "70$", "Prelude to Chaos": "70$", "Araxys": "65$",
+            "Reaver": "55$", "Prime": "55$", "Oni": "50$", "Ion": "50$"
+        };
+
+        function oyunSec(oyun) {
+            aktifOyun = oyun;
+            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderListe();
+        }
+
+        function renderListe() {
+            const listeDiv = document.getElementById('liste');
+            listeDiv.innerHTML = "";
+            const liste = aktifOyun === 'fortnite' ? fSkinler : vSetler;
+            liste.forEach(s => listeDiv.innerHTML += `<div class="liste-item">${s}</div>`);
+        }
 
         async function ara() {
             const ad = document.getElementById('skinAd').value;
             const sonucDiv = document.getElementById('sonuc');
-            try {
+            if(aktifOyun === 'fortnite') {
                 const res = await fetch(`https://fortnite-api.com/v2/cosmetics/br/search?name=${ad}&language=tr`);
                 const data = await res.json();
                 if (data.status === 200) {
                     const s = data.data;
                     const sezon = s.introduction ? s.introduction.season : 10;
                     
-                    // Otomatik fiyat mantığı: Eski sezonlar pahalı, yeni sezonlar ucuz[cite: 1]
+                    // Fortnite Sezon Mantığı
                     let fiyat;
                     if (sezon <= 2) fiyat = "450$ - 500$";
                     else if (sezon <= 5) fiyat = "250$ - 350$";
                     else fiyat = "30$ - 70$";
 
-                    sonucDiv.innerHTML = `
-                        <h3>${s.name}</h3>
-                        <img src="${s.images.icon}">
-                        <p>Sezon: ${sezon}</p>
-                        <p style="color:#00ff00">Piyasa Değeri: ${fiyat}</p>
-                    `;
-                } else {
-                    sonucDiv.innerHTML = "Skin bulunamadı.";
-                }
-            } catch (e) { sonucDiv.innerHTML = "Hata oluştu."; }
+                    sonucDiv.innerHTML = `<h3>${s.name}</h3><img src="${s.images.icon}"><p>Sezon: ${sezon}</p><p style="color:#00ff00">Piyasa Değeri: ${fiyat}</p>`;
+                } else { sonucDiv.innerHTML = "Skin bulunamadı."; }
+            } else {
+                const res = await fetch(`https://valorant-api.com/v1/weapons/skins`);
+                const data = await res.json();
+                const skin = data.data.find(s => s.displayName.toLowerCase().includes(ad.toLowerCase()));
+                if (skin) {
+                    // Valorant Akıllı Fiyat Mantığı
+                    let fiyat = "30$ - 40$"; // Varsayılan yeni nesil/standart fiyatı
+                    
+                    // Eğer aranan skin lüks listesindeki bir kelimeyi içeriyorsa o fiyatı ata
+                    for (const [key, value] of Object.entries(vLuksFiyatlar)) {
+                        if (skin.displayName.toLowerCase().includes(key.toLowerCase())) {
+                            fiyat = value;
+                            break;
+                        }
+                    }
+
+                    sonucDiv.innerHTML = `<h3>${skin.displayName}</h3><img src="${skin.displayIcon}"><p style="color:#00ff00">Piyasa Değeri: ${fiyat}</p>`;
+                } else { sonucDiv.innerHTML = "Skin bulunamadı."; }
+            }
         }
+        renderListe();
     </script>
 </body>
 </html>
-```[cite: 1]
